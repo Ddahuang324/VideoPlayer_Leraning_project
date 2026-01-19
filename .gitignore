@@ -39,3 +39,6 @@ Thumbs.db
 # Agent工作目录
 .agent/
 .claude/
+.clauderc
+.clauderc/
+doc/

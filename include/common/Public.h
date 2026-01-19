@@ -2,6 +2,13 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
+
+// Buffer类型：直接使用std::string
+using Buffer = std::string;
+
+// 如果需要视图语义，使用string_view
+using BufferView = std::string_view;
 
 // 智能指针别名
 template<typename T>
@@ -10,9 +17,16 @@ using UniquePtr = std::unique_ptr<T>;
 template<typename T>
 using SharedPtr = std::shared_ptr<T>;
 
-// Buffer类型（继承std::string）
-class Buffer : public std::string {
-public:
-    using std::string::string;
-    operator const char*() const { return c_str(); }
-};
+template<typename T>
+using WeakPtr = std::weak_ptr<T>;
+
+// 工厂函数
+template<typename T, typename... Args>
+inline UniquePtr<T> MakeUnique(Args&&... args) {
+    return std::make_unique<T>(std::forward<Args>(args)...);
+}
+
+template<typename T, typename... Args>
+inline SharedPtr<T> MakeShared(Args&&... args) {
+    return std::make_shared<T>(std::forward<Args>(args)...);
+}
