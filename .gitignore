@@ -35,10 +35,11 @@ cmake-build-*/
 # 系统文件
 .DS_Store
 Thumbs.db
-
+CLAUDE.md
 # Agent工作目录
 .agent/
 .claude/
 .clauderc
 .clauderc/
 doc/
+docs/
