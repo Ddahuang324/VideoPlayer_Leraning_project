@@ -93,4 +93,46 @@ private:
     bool m_is_ok;
 };
 
+template<typename E>
+class [[nodiscard]] Result<void, E> {
+public:
+    static Result Ok() {
+        return Result(true);
+    }
+
+    static Result Err(E error) {
+        return Result(std::move(error));
+    }
+
+    bool IsOk() const { return m_is_ok; }
+    bool IsErr() const { return !m_is_ok; }
+
+    void Value() const {
+        if (!m_is_ok) {
+            throw std::logic_error("Called Value() on Err result");
+        }
+    }
+
+    E& Error() {
+        if (m_is_ok) {
+            throw std::logic_error("Called Error() on Ok result");
+        }
+        return std::get<E>(m_data);
+    }
+
+    const E& Error() const {
+        if (m_is_ok) {
+            throw std::logic_error("Called Error() on Ok result");
+        }
+        return std::get<E>(m_data);
+    }
+
+private:
+    Result(bool is_ok) : m_data(std::monostate{}), m_is_ok(is_ok) {}
+    Result(E error) : m_data(std::move(error)), m_is_ok(false) {}
+
+    std::variant<std::monostate, E> m_data;
+    bool m_is_ok;
+};
+
 } // namespace yibo

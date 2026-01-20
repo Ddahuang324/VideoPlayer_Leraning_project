@@ -30,3 +30,4 @@ template<typename T, typename... Args>
 inline SharedPtr<T> MakeShared(Args&&... args) {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
+

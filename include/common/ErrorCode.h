@@ -20,6 +20,19 @@ enum class ErrorCode {
     ConnectionTimeout = 102,
     ConnectionClosed = 103,
     SocketError = 104,
+    SocketCreateFailed = 105,
+    BindFailed = 106,
+    ListenFailed = 107,
+    AcceptFailed = 108,
+    ConnectFailed = 109,
+    SendFailed = 110,
+    RecvFailed = 111,
+    WouldBlock = 112,
+    Interrupted = 113,
+    AlreadyInitialized = 114,
+    NotInitialized = 115,
+    SetNonBlockFailed = 116,
+    SetSockOptFailed = 117,
 
     // HTTP错误 (200-299)
     HttpError = 200,
@@ -60,6 +73,19 @@ inline std::string_view ErrorCodeToString(ErrorCode code) {
         case ErrorCode::ConnectionTimeout: return "Connection timeout";
         case ErrorCode::ConnectionClosed: return "Connection closed";
         case ErrorCode::SocketError: return "Socket error";
+        case ErrorCode::SocketCreateFailed: return "Socket create failed";
+        case ErrorCode::BindFailed: return "Bind failed";
+        case ErrorCode::ListenFailed: return "Listen failed";
+        case ErrorCode::AcceptFailed: return "Accept failed";
+        case ErrorCode::ConnectFailed: return "Connect failed";
+        case ErrorCode::SendFailed: return "Send failed";
+        case ErrorCode::RecvFailed: return "Recv failed";
+        case ErrorCode::WouldBlock: return "Would block";
+        case ErrorCode::Interrupted: return "Interrupted";
+        case ErrorCode::AlreadyInitialized: return "Already initialized";
+        case ErrorCode::NotInitialized: return "Not initialized";
+        case ErrorCode::SetNonBlockFailed: return "Set non-block failed";
+        case ErrorCode::SetSockOptFailed: return "Set socket option failed";
         case ErrorCode::HttpError: return "HTTP error";
         case ErrorCode::HttpBadRequest: return "Bad request";
         case ErrorCode::HttpUnauthorized: return "Unauthorized";
