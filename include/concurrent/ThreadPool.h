@@ -9,47 +9,37 @@
 
 namespace yibo {
 
-/**
- * @brief Modern C++17 thread pool implementation
- *
- * Features:
- * - Type-safe task submission with std::function
- * - Return value support via std::future
- * - Exception propagation through futures
- * - Graceful shutdown mechanism
- * - RAII resource management
- */
 class CThreadPool {
 public:
     CThreadPool();
     ~CThreadPool();
 
-    // Disable copy
+    // 禁用拷贝
     CThreadPool(const CThreadPool&) = delete;
     CThreadPool& operator=(const CThreadPool&) = delete;
 
-    // Enable move
+    // 启用移动
     CThreadPool(CThreadPool&&) = default;
     CThreadPool& operator=(CThreadPool&&) = default;
 
     /**
-     * @brief Start the thread pool with specified number of worker threads
-     * @param thread_count Number of worker threads to create
+     * @brief 使用指定的线程数启动线程池
+     * @param thread_count 要创建的工作线程数量
      */
     void Start(size_t thread_count);
 
     /**
-     * @brief Stop the thread pool gracefully (wait for all tasks to complete)
+     * @brief 优雅地停止线程池（等待所有任务完成）
      */
     void Stop();
 
     /**
-     * @brief Submit a task to the thread pool
-     * @tparam Func Function type
-     * @tparam Args Argument types
-     * @param func Function to execute
-     * @param args Arguments to pass to the function
-     * @return std::future to retrieve the result
+     * @brief 向线程池提交一个任务
+     * @tparam Func 函数类型
+     * @tparam Args 参数类型
+     * @param func 要执行的函数
+     * @param args 传递给函数的参数
+     * @return 用于获取结果的 std::future
      */
     template<typename Func, typename... Args>
     auto AddTask(Func&& func, Args&&... args)
@@ -57,27 +47,27 @@ public:
 
 private:
     /**
-     * @brief Worker thread main loop
+     * @brief 工作线程主循环
      */
     void WorkerThread();
 
-    std::vector<std::thread> m_workers;                  // Worker threads
-    std::queue<std::function<void()>> m_tasks;           // Task queue
-    Mutex m_mutex;                                       // Protects task queue
-    ConditionVariable m_cond;                            // Notifies workers
-    std::atomic<bool> m_stop{false};                     // Stop flag
+    std::vector<std::thread> m_workers;                  // 工作线程
+    std::queue<std::function<void()>> m_tasks;           // 任务队列
+    Mutex m_mutex;                                       // 保护任务队列的互斥锁
+    ConditionVariable m_cond;                            // 通知工作线程的条件变量
+    std::atomic<bool> m_stop{false};                     // 停止标志
 };
 
-// Template implementation
+
 template<typename Func, typename... Args>
 auto CThreadPool::AddTask(Func&& func, Args&&... args)
     -> std::future<std::invoke_result_t<Func, Args...>>
 {
     using ReturnType = std::invoke_result_t<Func, Args...>;
 
-    // Create packaged_task
+    // 创建 packaged_task
     auto task = std::make_shared<std::packaged_task<ReturnType()>>(
-        std::bind(std::forward<Func>(func), std::forward<Args>(args)...)
+        std::bind(std::forward<Func>(func), std::forward<Args>(args)...)//闭包
     );
 
     std::future<ReturnType> result = task->get_future();
@@ -85,7 +75,7 @@ auto CThreadPool::AddTask(Func&& func, Args&&... args)
     {
         LockGuard<Mutex> lock(m_mutex);
 
-        // Don't allow adding tasks after stop
+        // 停止后不允许添加任务
         if (m_stop) {
             throw std::runtime_error("Cannot add task to stopped thread pool");
         }
@@ -97,4 +87,4 @@ auto CThreadPool::AddTask(Func&& func, Args&&... args)
     return result;
 }
 
-} // namespace yibo
+} 
