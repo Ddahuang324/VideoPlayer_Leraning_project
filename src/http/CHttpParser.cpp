@@ -126,9 +126,11 @@ Result<size_t, Error> CHttpParser::ParseBody(BufferView data) {
 
     size_t content_length = 0;
     for (char c : content_length_str) {
+        //确保Content-Length是十进制数字
         if (!std::isdigit(c)) {
             return Result<size_t, Error>::Err(Error(ErrorCode::InvalidArgument, "Invalid Content-Length"));
         }
+        //把字符串数字恢复为整数 ：如“123” = 0*10 + 1 = 1 -> 1*10+2  =12 -> 12*10+3 =123
         content_length = content_length * 10 + (c - '0');
     }
 
