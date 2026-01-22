@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "common/Public.h"
 
+using namespace yibo;
+
 TEST(BufferTest, BasicOperations) {
     Buffer buf = "hello";
     EXPECT_EQ(buf.size(), 5);
