@@ -52,7 +52,9 @@ Result<int, Error> CProcess::CreateSubProcess() {
         );
     }
 
+    // 创建Unix域套接字对用于父子进程通信
     int fds[2];
+    //为什么不用pipe而用socketpair？ 因为socketpair是全双工的，更适合进程间通信，而pipe是单向的。
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0) {
         return Result<int, Error>::Err(
             Error(ErrorCode::SocketError, "socketpair failed: " + std::string(strerror(errno)))
@@ -91,6 +93,7 @@ Result<int, Error> CProcess::SendFD(int fd) {
     return SendFDImpl(fd);
 }
 
+//需要时再学
 Result<int, Error> CProcess::SendFDImpl(int fd) {
     struct msghdr msg;
     struct iovec iov[1];
@@ -133,6 +136,7 @@ Result<int, Error> CProcess::RecvFD(int& fd) {
 }
 
 Result<int, Error> CProcess::RecvFDImpl(int& fd) {
+    //这一部分在干嘛？
     struct msghdr msg;
     struct iovec iov[1];
     char buf[1];
