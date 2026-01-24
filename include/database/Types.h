@@ -11,21 +11,21 @@ enum class SqlType {
     TYPE_BOOL,
     TYPE_INT,
     TYPE_DATETIME,
-    TYPE_REAL,
-    TYPE_VARCHAR,
-    TYPE_TEXT,
-    TYPE_BLOB
+    TYPE_REAL, //对应cpp中的浮点数
+    TYPE_VARCHAR, //对应cpp中的字符串
+    TYPE_TEXT,//对应cpp中的字符串
+    TYPE_BLOB//对应cpp中的字符串，二进制大对象
 };
 
 // 字段属性枚举（使用位标志）
 enum FieldAttr : unsigned {
     NONE = 0,
-    NOT_NULL = 1 << 0,
-    DEFAULT = 1 << 1,
-    UNIQUE = 1 << 2,
-    PRIMARY_KEY = 1 << 3,
-    CHECK = 1 << 4,
-    AUTOINCREMENT = 1 << 5
+    NOT_NULL = 1 << 0,      // 非空
+    DEFAULT = 1 << 1,       // 有默认值
+    UNIQUE = 1 << 2,        // 唯一约束
+    PRIMARY_KEY = 1 << 3,   // 主键
+    CHECK = 1 << 4,         // 检查约束
+    AUTOINCREMENT = 1 << 5  // 自增
 };
 
 // 字段值类型：使用variant替代unsafe union
