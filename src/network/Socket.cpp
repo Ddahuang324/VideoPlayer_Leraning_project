@@ -141,7 +141,7 @@ Result<UniquePtr<CSocket>, Error> CSocket::Accept() {
         );
     }
 
-    sockaddr_in client_addr{};
+    sockaddr_storage client_addr{};
     socklen_t addr_len = sizeof(client_addr);
 
     int client_fd = accept(m_socket, reinterpret_cast<sockaddr*>(&client_addr), &addr_len);

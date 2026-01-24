@@ -10,7 +10,7 @@
 namespace yibo {
 
 // 连接参数类型
-using KeyValue = std::map<std::string, std::string>;
+using KeyValue = std::map<std::string, std::string>;//键是配置项的名字，值是具体的对应的内容，比如账号密码
 
 class CDatabaseClient {
 public:

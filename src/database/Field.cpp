@@ -5,7 +5,7 @@
 namespace yibo {
 
 Result<void, Error> Field::LoadFromStr(std::string_view str) {
-    if (str.empty() && !(attr & NOT_NULL)) {
+    if (str.empty() && !(attr & NOT_NULL)) {//str为空或者未设置非空约束
         value = std::monostate{};
         return Result<void, Error>::Ok();
     }
