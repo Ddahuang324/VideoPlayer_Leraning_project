@@ -8,6 +8,17 @@
 #include <string>
 #include <cstdint>
 
+// 取消系统宏定义以避免冲突
+#ifdef DEBUG
+#undef DEBUG
+#endif
+#ifdef ERROR
+#undef ERROR
+#endif
+#ifdef WARNING
+#undef WARNING
+#endif
+
 namespace yibo {
 
 enum class LogLevel : uint8_t {

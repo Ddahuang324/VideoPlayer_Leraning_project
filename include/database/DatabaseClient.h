@@ -35,6 +35,9 @@ public:
 
     // 检查连接状态
     virtual bool IsConnected() const = 0;
+
+    // SQL转义
+    virtual std::string Escape(const std::string& str) { return str; }
 };
 
 } // namespace yibo

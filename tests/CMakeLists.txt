@@ -15,6 +15,7 @@ if(UNIT_TEST_SOURCES)
     add_executable(unit_tests ${UNIT_TEST_SOURCES})
     target_link_libraries(unit_tests
         gtest_main
+        gmock
         yiboserver_lib
     )
 

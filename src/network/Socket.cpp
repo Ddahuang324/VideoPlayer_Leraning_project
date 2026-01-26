@@ -65,6 +65,7 @@ Result<void, Error> CSocket::Init(const CSockParam& param) {
         );
     }
 
+    m_param = param;
     return std::visit([this, &param](auto&& addr) -> Result<void, Error> {
         using T = std::decay_t<decltype(addr)>;
 
@@ -109,6 +110,14 @@ Result<void, Error> CSocket::Init(const CSockParam& param) {
             return Result<void, Error>::Ok();
         }
     }, param.address);
+}
+
+Result<void, Error> CSocket::InitFromExisting(int fd) {
+    if (m_socket != -1) {
+        Close();
+    }
+    m_socket = fd;
+    return Result<void, Error>::Ok();
 }
 
 Result<void, Error> CSocket::Link() {

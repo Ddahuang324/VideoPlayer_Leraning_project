@@ -24,6 +24,9 @@ public:
     Result<void, Error> Close() override;
     bool IsConnected() const override;
 
+    // SQL转义
+    std::string Escape(const std::string& str) override;
+
 private:
     Result<void, Error> ParseResultSet(MYSQL_RES* res, Table& table);
 };

@@ -149,4 +149,15 @@ bool CMysqlClient::IsConnected() const {
     return m_conn != nullptr;
 }
 
+std::string CMysqlClient::Escape(const std::string& str) {
+    if (!IsConnected() || str.empty()) {
+        return str;
+    }
+
+    std::string escaped(str.size() * 2 + 1, '\0');
+    unsigned long len = mysql_real_escape_string(m_conn, &escaped[0], str.c_str(), str.size());
+    escaped.resize(len);
+    return escaped;
+}
+
 } // namespace yibo

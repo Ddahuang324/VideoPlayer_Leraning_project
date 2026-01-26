@@ -79,6 +79,7 @@ public:
     }
 
     Result<void, Error> Init(const CSockParam& param) override;
+    Result<void, Error> InitFromExisting(int fd);
     Result<void, Error> Link();
     Result<UniquePtr<CSocket>, Error> Accept();
     Result<ssize_t, Error> Send(std::string_view data) override;
