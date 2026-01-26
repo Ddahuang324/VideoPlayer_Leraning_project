@@ -50,6 +50,8 @@ public:
     virtual Result<void, Error> Init(const CSockParam& param) = 0;
     virtual Result<ssize_t, Error> Send(std::string_view data) = 0;
     virtual Result<ssize_t, Error> Recv(Buffer& buffer, size_t max_size) = 0;
+    virtual Result<ssize_t, Error> SendTo(std::string_view data, const sockaddr_storage& addr, socklen_t addr_len) = 0;
+    virtual Result<ssize_t, Error> RecvFrom(Buffer& buffer, size_t max_size, sockaddr_storage* addr, socklen_t* addr_len) = 0;
     virtual void Close() = 0;
     virtual operator int() const = 0;
 };
@@ -84,6 +86,8 @@ public:
     Result<UniquePtr<CSocket>, Error> Accept();
     Result<ssize_t, Error> Send(std::string_view data) override;
     Result<ssize_t, Error> Recv(Buffer& buffer, size_t max_size) override;
+    Result<ssize_t, Error> SendTo(std::string_view data, const sockaddr_storage& addr, socklen_t addr_len) override;
+    Result<ssize_t, Error> RecvFrom(Buffer& buffer, size_t max_size, sockaddr_storage* addr, socklen_t* addr_len) override;
     void Close() override;
     operator int() const override { return m_socket; }
 

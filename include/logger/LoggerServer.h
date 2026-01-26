@@ -30,7 +30,6 @@ private:
     ~CLoggerServer() { (void)Stop(); }
 
     void EventLoop();
-    Result<void, Error> HandleNewConnection();
     Result<void, Error> HandleLogData(int client_fd);
 
     std::thread m_thread;
@@ -39,7 +38,7 @@ private:
     UniquePtr<LogWriter> m_writer;
     std::unordered_map<int, UniquePtr<CSocket>> m_clients;
     std::atomic<bool> m_running{false};
-    std::string m_socket_path;
 };
 
 } // namespace yibo
+

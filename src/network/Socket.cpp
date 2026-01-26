@@ -292,4 +292,65 @@ Result<void, Error> CSocket::Connect() {
     return Result<void, Error>::Ok();
 }
 
+Result<ssize_t, Error> CSocket::SendTo(std::string_view data, const sockaddr_storage& addr, socklen_t addr_len) {
+    if (m_socket == -1) {
+        return Result<ssize_t, Error>::Err(
+            Error(ErrorCode::NotInitialized, "Socket not initialized")
+        );
+    }
+
+    ssize_t ret = sendto(m_socket, data.data(), data.size(), 0,
+                         reinterpret_cast<const sockaddr*>(&addr), addr_len);
+
+    if (ret < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            return Result<ssize_t, Error>::Err(
+                Error(ErrorCode::WouldBlock, "Send buffer full")
+            );
+        }
+        if (errno == EINTR) {
+            return Result<ssize_t, Error>::Err(
+                Error(ErrorCode::Interrupted, "SendTo interrupted by signal")
+            );
+        }
+        return Result<ssize_t, Error>::Err(
+            Error(ErrorCode::SendFailed, strerror(errno))
+        );
+    }
+
+    return Result<ssize_t, Error>::Ok(ret);
+}
+
+Result<ssize_t, Error> CSocket::RecvFrom(Buffer& buffer, size_t max_size, sockaddr_storage* addr, socklen_t* addr_len) {
+    if (m_socket == -1) {
+        return Result<ssize_t, Error>::Err(
+            Error(ErrorCode::NotInitialized, "Socket not initialized")
+        );
+    }
+
+    buffer.resize(max_size);
+    ssize_t ret = recvfrom(m_socket, buffer.data(), max_size, 0,
+                           reinterpret_cast<sockaddr*>(addr), addr_len);
+
+    if (ret < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            return Result<ssize_t, Error>::Err(
+                Error(ErrorCode::WouldBlock, "No data available")
+            );
+        }
+        if (errno == EINTR) {
+            return Result<ssize_t, Error>::Err(
+                Error(ErrorCode::Interrupted, "RecvFrom interrupted by signal")
+            );
+        }
+        return Result<ssize_t, Error>::Err(
+            Error(ErrorCode::RecvFailed, strerror(errno))
+        );
+    }
+
+    buffer.resize(ret);
+    return Result<ssize_t, Error>::Ok(ret);
+}
+
 } // namespace yibo
+

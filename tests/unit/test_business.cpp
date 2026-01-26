@@ -26,6 +26,8 @@ public:
     MOCK_METHOD((Result<void, Error>), Init, (const CSockParam& param), (override));
     MOCK_METHOD((Result<ssize_t, Error>), Send, (std::string_view data), (override));
     MOCK_METHOD((Result<ssize_t, Error>), Recv, (Buffer& buffer, size_t max_size), (override));
+    MOCK_METHOD((Result<ssize_t, Error>), SendTo, (std::string_view data, const sockaddr_storage& addr, socklen_t addr_len), (override));
+    MOCK_METHOD((Result<ssize_t, Error>), RecvFrom, (Buffer& buffer, size_t max_size, sockaddr_storage* addr, socklen_t* addr_len), (override));
     MOCK_METHOD(void, Close, (), (override));
     operator int() const override { return 0; }
 };
