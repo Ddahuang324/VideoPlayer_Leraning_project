@@ -22,3 +22,18 @@ if(UNIT_TEST_SOURCES)
     include(GoogleTest)
     gtest_discover_tests(unit_tests)
 endif()
+
+# 集成测试
+file(GLOB INTEGRATION_TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/integration/*.cpp")
+
+if(INTEGRATION_TEST_SOURCES)
+    add_executable(integration_tests ${INTEGRATION_TEST_SOURCES})
+    target_link_libraries(integration_tests
+        gtest_main
+        gmock
+        yiboserver_lib
+    )
+
+    include(GoogleTest)
+    gtest_discover_tests(integration_tests)
+endif()

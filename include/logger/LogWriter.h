@@ -16,6 +16,10 @@ public:
 
     Result<void, Error> Write(const LogInfo& info);
     Result<void, Error> Flush();
+    
+    // Get the current log file path (useful for testing)
+    const std::filesystem::path& GetCurrentFile() const { return m_current_file; }
+
 
 private:
     Result<void, Error> Rotate();
