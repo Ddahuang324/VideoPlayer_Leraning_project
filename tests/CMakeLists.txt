@@ -4,6 +4,7 @@ FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG release-1.12.1
+  GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(googletest)
 
@@ -14,9 +15,25 @@ if(UNIT_TEST_SOURCES)
     add_executable(unit_tests ${UNIT_TEST_SOURCES})
     target_link_libraries(unit_tests
         gtest_main
+        gmock
         yiboserver_lib
     )
 
     include(GoogleTest)
     gtest_discover_tests(unit_tests)
+endif()
+
+# 集成测试
+file(GLOB INTEGRATION_TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/integration/*.cpp")
+
+if(INTEGRATION_TEST_SOURCES)
+    add_executable(integration_tests ${INTEGRATION_TEST_SOURCES})
+    target_link_libraries(integration_tests
+        gtest_main
+        gmock
+        yiboserver_lib
+    )
+
+    include(GoogleTest)
+    gtest_discover_tests(integration_tests)
 endif()

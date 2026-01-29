@@ -3,6 +3,7 @@
 #include "common/Public.h"
 
 using json = nlohmann::json;
+using namespace yibo;
 
 int main() {
     std::cout << "YiboServer C++17 - Phase 1 Framework Setup\n";
