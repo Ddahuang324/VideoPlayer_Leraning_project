@@ -1,0 +1,40 @@
+{
+    "server": {
+        "name": "YiboServer-Dev",
+        "version": "1.0.0-dev",
+        "host": "127.0.0.1",
+        "port": 8080,
+        "max_connections": 100,
+        "timeout_seconds": 30,
+        "worker_threads": 2
+    },
+    "database": {
+        "type": "sqlite3",
+        "sqlite": {
+            "path": ":memory:",
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL"
+        }
+    },
+    "logger": {
+        "level": "DEBUG",
+        "output_dir": "./logs",
+        "file_prefix": "yiboserver_dev",
+        "max_file_size_mb": 10,
+        "max_files": 5,
+        "rotation_time_hours": 1,
+        "async_mode": false,
+        "console_output": true
+    },
+    "security": {
+        "enable_signature": false,
+        "max_request_size_mb": 10,
+        "enable_rate_limit": false
+    },
+    "performance": {
+        "epoll_max_events": 128,
+        "socket_buffer_size_kb": 32,
+        "enable_tcp_nodelay": true,
+        "enable_tcp_keepalive": false
+    }
+}

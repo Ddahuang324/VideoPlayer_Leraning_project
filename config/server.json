@@ -1,0 +1,60 @@
+{
+    "server": {
+        "name": "YiboServer",
+        "version": "1.0.0",
+        "host": "0.0.0.0",
+        "port": 8080,
+        "max_connections": 10000,
+        "timeout_seconds": 30,
+        "worker_threads": 4
+    },
+    "database": {
+        "type": "sqlite3",
+        "sqlite": {
+            "path": "./data/yiboserver.db",
+            "journal_mode": "WAL",
+            "synchronous": "NORMAL"
+        },
+        "mysql": {
+            "host": "localhost",
+            "port": 3306,
+            "user": "yiboserver",
+            "password": "your_password_here",
+            "database": "yiboserver",
+            "charset": "utf8mb4",
+            "pool_size": 10
+        }
+    },
+    "logger": {
+        "level": "INFO",
+        "output_dir": "./logs",
+        "file_prefix": "yiboserver",
+        "max_file_size_mb": 100,
+        "max_files": 10,
+        "rotation_time_hours": 24,
+        "async_mode": true,
+        "console_output": true
+    },
+    "security": {
+        "enable_signature": true,
+        "signature_algorithm": "MD5",
+        "signature_timeout_seconds": 300,
+        "max_request_size_mb": 10,
+        "enable_rate_limit": true,
+        "rate_limit_per_second": 100
+    },
+    "performance": {
+        "epoll_max_events": 1024,
+        "socket_buffer_size_kb": 64,
+        "enable_tcp_nodelay": true,
+        "enable_tcp_keepalive": true,
+        "keepalive_idle_seconds": 60,
+        "keepalive_interval_seconds": 10,
+        "keepalive_probes": 3
+    },
+    "business": {
+        "enable_user_cache": true,
+        "cache_ttl_seconds": 3600,
+        "max_cache_entries": 10000
+    }
+}
