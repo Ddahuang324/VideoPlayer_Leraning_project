@@ -60,6 +60,20 @@ void CServer::Stop() {
     (void)m_epoll.Close();
 }
 
+Result<void, Error> CServer::AddListenSocket(SharedPtr<CSocket> socket) {
+    if (!socket || *socket == -1) {
+        return Result<void, Error>::Err(Error(ErrorCode::InvalidArgument, "Invalid socket"));
+    }
+
+    int fd = *socket;
+    {
+        LockGuard<Mutex> lock(m_mutex);
+        m_listeners[fd] = socket;
+    }
+
+    return m_epoll.Add(fd, EpollData(fd), EPOLLIN);
+}
+
 int CServer::ReceiveFD() {
     if (!m_process) {
         return -1;
@@ -84,7 +98,7 @@ void CServer::HandleEvent(const epoll_event& event) {
             auto client = MakeShared<CSocket>();
             if (client->InitFromExisting(client_fd).IsOk()) {
                 {
-                    LockGuard<Mutex> lock(m_clients_mutex);
+                    LockGuard<Mutex> lock(m_mutex);
                     m_clients[client_fd] = client;
                 }
                 (void)m_epoll.Add(client_fd, EpollData(client_fd), EPOLLIN);
@@ -96,10 +110,36 @@ void CServer::HandleEvent(const epoll_event& event) {
         return;
     }
 
+    // 检查是否是监听套接字
+    SharedPtr<CSocket> listener;
+    {
+        LockGuard<Mutex> lock(m_mutex);
+        auto it = m_listeners.find(fd);
+        if (it != m_listeners.end()) {
+            listener = it->second;
+        }
+    }
+
+    if (listener) {
+        auto accept_result = listener->Accept();
+        if (accept_result.IsOk()) {
+            auto client_sock = std::move(accept_result.Value());
+            int client_fd = *client_sock;
+            SharedPtr<CSocket> client_ptr = std::move(client_sock); 
+            {
+                LockGuard<Mutex> lock(m_mutex);
+                m_clients[client_fd] = client_ptr;
+            }
+            (void)m_epoll.Add(client_fd, EpollData(client_fd), EPOLLIN);
+            (void)m_business->Connected(client_ptr.get());
+        }
+        return;
+    }
+
     // 查找客户端连接
     SharedPtr<CSocket> client;
     {
-        LockGuard<Mutex> lock(m_clients_mutex);
+        LockGuard<Mutex> lock(m_mutex);
         auto it = m_clients.find(fd);
         if (it == m_clients.end()) {
             return;
@@ -115,7 +155,7 @@ void CServer::HandleEvent(const epoll_event& event) {
             // 连接关闭或错误
             (void)m_epoll.Del(fd);
             {
-                LockGuard<Mutex> lock(m_clients_mutex);
+                LockGuard<Mutex> lock(m_mutex);
                 auto it = m_clients.find(fd);
                 if (it != m_clients.end() && it->second == client) {
                     m_clients.erase(it);

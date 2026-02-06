@@ -2,6 +2,7 @@
 #include <cstring>
 #include <csignal>
 #include <atomic>
+#include <thread>
 #include "common/Public.h"
 #include "common/ServerConfig.h"
 #include "logger/Logger.h"
@@ -9,6 +10,7 @@
 #include "business/EdoyunPlayerServer.h"
 #include "database/Sqlite3Client.h"
 #include "database/MysqlClient.h"
+#include "network/Socket.h"
 
 using namespace yibo;
 
@@ -191,32 +193,50 @@ int main(int argc, char* argv[]) {
                   << init_result.Error().message << std::endl;
         return 1;
     }
-    std::cout << "✅ Server initialized" << std::endl;
 
-    // Start server
-    std::cout << "🚀 Starting server on " << config.GetHost() << ":" 
-              << config.GetPort() << "..." << std::endl;
+    // 创建监听套接字
+    auto listen_sock = MakeShared<CSocket>();
+    CSockParam param = CSockParam::MakeIPv4(config.GetHost(), 
+                                           static_cast<uint16_t>(config.GetPort()), 
+                                           SOCK_ISSERVER | SOCK_ISREUSE);
+    auto sock_init = listen_sock->Init(param);
+    if (!sock_init.IsOk()) {
+        std::cerr << "❌ Failed to init listen socket: " << sock_init.Error().message << std::endl;
+        return 1;
+    }
+    auto sock_link = listen_sock->Link();
+    if (!sock_link.IsOk()) {
+        std::cerr << "❌ Failed to bind/listen on " << config.GetHost() << ":" << config.GetPort() 
+                  << " - " << sock_link.Error().message << std::endl;
+        return 1;
+    }
+    server.AddListenSocket(listen_sock);
     
-    // Note: Server::Run() is blocking, so we need to run it in a separate thread
-    // or modify the architecture. For now, let's just show it's ready.
+    std::cout << "✅ Server initialized and listening on " << config.GetHost() << ":" << config.GetPort() << std::endl;
+
+    // Start server in a separate thread
+    std::cout << "🚀 Starting server loop..." << std::endl;
+    std::thread server_thread([&server]() {
+        auto run_result = server.Run();
+        if (run_result.IsErr()) {
+            std::cerr << "❌ Server run error: " << run_result.Error().message << std::endl;
+        }
+    });
     
     std::cout << "\n";
-    std::cout << "✅ Server ready to start!\n";
-    std::cout << "🎯 Will listen on http://" << config.GetHost() << ":" 
+    std::cout << "✅ Server is UP and running!\n";
+    std::cout << "🎯 URL: http://" << (config.GetHost() == "0.0.0.0" ? "localhost" : config.GetHost()) << ":" 
               << config.GetPort() << "\n";
-    std::cout << "\n";
-    std::cout << "⚠️  Note: Full server startup requires process architecture\n";
-    std::cout << "    This demo shows successful initialization.\n";
     std::cout << "\n";
     std::cout << "📝 Press Ctrl+C to exit\n";
     std::cout << "\n";
 
-    TRACEI("=== YiboServer Initialized ===");
-    TRACEI("Ready to listen on %s:%d", config.GetHost().c_str(), config.GetPort());
+    TRACEI("=== YiboServer Started ===");
+    TRACEI("Listening on %s:%d", config.GetHost().c_str(), config.GetPort());
 
     // Wait for shutdown signal
     while (g_running) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     // Graceful shutdown
@@ -224,6 +244,9 @@ int main(int argc, char* argv[]) {
     TRACEI("=== YiboServer Shutting Down ===");
     
     server.Stop();
+    if (server_thread.joinable()) {
+        server_thread.join();
+    }
     
     std::cout << "✅ Server stopped gracefully" << std::endl;
     TRACEI("=== YiboServer Stopped ===");

@@ -26,6 +26,9 @@ public:
     // 停止服务器
     void Stop();
 
+    // 添加监听套接字
+    Result<void, Error> AddListenSocket(SharedPtr<CSocket> socket);
+
 private:
     // 从主进程接收客户端连接
     int ReceiveFD();
@@ -38,8 +41,9 @@ private:
     CEpoll m_epoll;
     CThreadPool m_pool;
     CProcess* m_process = nullptr;
+    std::map<int, SharedPtr<CSocket>> m_listeners;
     std::map<int, SharedPtr<CSocket>> m_clients;
-    Mutex m_clients_mutex;
+    Mutex m_mutex;
     bool m_running = false;
 };
 

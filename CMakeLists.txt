@@ -74,6 +74,22 @@ else()
     )
 endif()
 
+# 创建独立的日志服务器可执行文件
+add_executable(yiboserver_logger src/logger_server_main.cpp)
+
+if(SOURCES)
+    target_link_libraries(yiboserver_logger yiboserver_lib)
+else()
+    target_link_libraries(yiboserver_logger
+        ${MYSQL_LIBRARIES}
+        SQLite::SQLite3
+        OpenSSL::SSL
+        OpenSSL::Crypto
+        pthread
+    )
+endif()
+
+
 # 测试配置
 enable_testing()
 if(EXISTS ${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt)
